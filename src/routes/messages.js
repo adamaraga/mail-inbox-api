@@ -51,26 +51,41 @@ router.get("/user/:userId", async (req, res) => {
 });
 
 // To get a specific message
-router.get("/:id", async (req, res) => {
+router.get("/:id/:userId", async (req, res) => {
   try {
-    const message = await Message.findById(req.params.id);
-    res.status(200).json(message);
+    const message = await Message.findById(req.params.id).where({
+      userId: req.params.userId,
+    });
+
+    if (!message) {
+      res.status(404).json({ message: "Message not found" });
+    } else {
+      res.status(200).json(message);
+    }
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
 // To update the read status of a specific message
-router.put("/read-update/:id", async (req, res) => {
+router.put("/read-update/:id/:userId", async (req, res) => {
   try {
-    const updatedMessage = await Message.findByIdAndUpdate(
-      req.params.id,
+    const updatedMessage = await Message.findOneAndUpdate(
+      {
+        userId: req.params.userId,
+        _id: req.params.id,
+      },
       {
         $set: req.body,
       },
       { new: true }
     );
-    res.status(200).json(updatedMessage);
+
+    if (!updatedMessage) {
+      res.status(404).json({ message: "Message not found, update failed" });
+    } else {
+      res.status(200).json(updatedMessage);
+    }
   } catch (err) {
     res.status(500).json(err);
   }
