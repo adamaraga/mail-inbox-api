@@ -1,8 +1,7 @@
-const router = require("express").Router();
 const User = require("../models/User");
 
 // To register a user
-router.post("/register", async (req, res) => {
+const registerUser = async (req, res) => {
   const newUser = new User({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -14,16 +13,26 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-});
+};
 
 // To get a users info
-router.get("/:id", async (req, res) => {
+const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    res.status(200).json(user);
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+    } else {
+      res.status(200).json(user);
+    }
   } catch (err) {
     res.status(500).json(err);
   }
-});
+};
 
-module.exports = router;
+const authController = {
+  registerUser,
+  getUser,
+};
+
+module.exports = authController;

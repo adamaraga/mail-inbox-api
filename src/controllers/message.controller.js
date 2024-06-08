@@ -1,8 +1,7 @@
-const router = require("express").Router();
 const Message = require("../models/Message");
 
 // To add a message for a specific user
-router.post("/add", async (req, res) => {
+const addMessage = async (req, res) => {
   const newMesssage = new Message({
     subject: req.body.subject,
     content: req.body.content,
@@ -15,10 +14,10 @@ router.post("/add", async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-});
+};
 
 // To get the count of total messages and unread messages for a specific user
-router.get("/count/:userId", async (req, res) => {
+const getMessageCount = async (req, res) => {
   try {
     const messagesCount = await Message.where({
       userId: req.params.userId,
@@ -36,10 +35,10 @@ router.get("/count/:userId", async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-});
+};
 
 // To get all the messages for a specific user
-router.get("/user/:userId", async (req, res) => {
+const getMessages = async (req, res) => {
   try {
     const messages = await Message.find({ userId: req.params.userId }).sort({
       _id: -1,
@@ -48,10 +47,10 @@ router.get("/user/:userId", async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-});
+};
 
 // To get a specific message
-router.get("/:id/:userId", async (req, res) => {
+const getMessageById = async (req, res) => {
   try {
     const message = await Message.findById(req.params.id).where({
       userId: req.params.userId,
@@ -65,10 +64,10 @@ router.get("/:id/:userId", async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-});
+};
 
 // To update the read status of a specific message
-router.put("/read-update/:id/:userId", async (req, res) => {
+const updateMessageReadStatus = async (req, res) => {
   try {
     const updatedMessage = await Message.findOneAndUpdate(
       {
@@ -76,7 +75,7 @@ router.put("/read-update/:id/:userId", async (req, res) => {
         _id: req.params.id,
       },
       {
-        $set: req.body,
+        $set: { isRead: req.body.isRead },
       },
       { new: true }
     );
@@ -89,6 +88,14 @@ router.put("/read-update/:id/:userId", async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-});
+};
 
-module.exports = router;
+const messageController = {
+  addMessage,
+  getMessageCount,
+  getMessages,
+  getMessageById,
+  updateMessageReadStatus,
+};
+
+module.exports = messageController;
